@@ -3125,11 +3125,13 @@ static TEE_Result tee_svc_cipher_update_helper(unsigned long state,
 			bool last_block, const void *src, size_t src_len,
 			void *dst, uint64_t *dst_len)
 {
+	// DMSG("has been called\n");
 	struct ts_session *sess = ts_get_current_session();
 	struct tee_cryp_state *cs = NULL;
 	TEE_Result res = TEE_SUCCESS;
 	size_t dlen = 0;
 
+	// DMSG("Before tee_svc_cryp_get_state\n");
 	res = tee_svc_cryp_get_state(sess, uref_to_vaddr(state), &cs);
 	if (res != TEE_SUCCESS)
 		return res;
@@ -3140,6 +3142,7 @@ static TEE_Result tee_svc_cipher_update_helper(unsigned long state,
 	src = memtag_strip_tag_const(src);
 	dst = memtag_strip_tag(dst);
 
+	// DMSG("Before vm_check_access_rights\n");
 	res = vm_check_access_rights(&to_user_ta_ctx(sess->ctx)->uctx,
 				     TEE_MEMORY_ACCESS_READ |
 				     TEE_MEMORY_ACCESS_ANY_OWNER,
@@ -3171,6 +3174,7 @@ static TEE_Result tee_svc_cipher_update_helper(unsigned long state,
 
 	if (src_len > 0) {
 		/* Permit src_len == 0 to finalize the operation */
+		// DMSG("Before tee_do_cipher_update\n");
 		res = tee_do_cipher_update(cs->ctx, cs->algo, cs->mode,
 					   last_block, src, src_len, dst);
 	}
@@ -3203,6 +3207,7 @@ TEE_Result syscall_cipher_update(unsigned long state, const void *src,
 TEE_Result syscall_cipher_final(unsigned long state, const void *src,
 			size_t src_len, void *dst, uint64_t *dst_len)
 {
+	// DMSG("Has been called\n");
 	return tee_svc_cipher_update_helper(state, true /* last_block */,
 					    src, src_len, dst, dst_len);
 }

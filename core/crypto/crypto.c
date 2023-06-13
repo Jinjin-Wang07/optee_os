@@ -211,6 +211,7 @@ TEE_Result crypto_cipher_update(void *ctx, TEE_OperationMode mode __unused,
 				bool last_block, const uint8_t *data,
 				size_t len, uint8_t *dst)
 {
+	// DMSG("Has been called\n");
 	return cipher_ops(ctx)->update(ctx, last_block, data, len, dst);
 }
 

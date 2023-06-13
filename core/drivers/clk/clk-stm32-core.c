@@ -544,23 +544,23 @@ struct clk *stm32mp_rcc_clock_id_to_clk(unsigned long clock_id)
 	return priv->clk_refs[clock_id];
 }
 
-static TEE_Result stm32mp_clk_dt_get_clk(struct dt_pargs *pargs,
-					 void *data __unused,
-					 struct clk **out_clk)
+static struct clk *stm32mp_clk_dt_get_clk(struct dt_driver_phandle_args *pargs,
+					  void *data __unused, TEE_Result *res)
 {
 	unsigned long clock_id = pargs->args[0];
 	struct clk *clk = NULL;
 
+	*res = TEE_ERROR_BAD_PARAMETERS;
+
 	if (pargs->args_count != 1)
-		return TEE_ERROR_BAD_PARAMETERS;
+		return NULL;
 
 	clk = stm32mp_rcc_clock_id_to_clk(clock_id);
 	if (!clk)
-		return TEE_ERROR_BAD_PARAMETERS;
+		return NULL;
 
-	*out_clk = clk;
-
-	return TEE_SUCCESS;
+	*res = TEE_SUCCESS;
+	return clk;
 }
 
 static void clk_stm32_register_clocks(struct clk_stm32_priv *priv)

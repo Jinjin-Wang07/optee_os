@@ -141,10 +141,10 @@ endif
 
 ifneq ($(libname),)
 # Build target is static library
-all: $(link-out-dir$(sm))/$(libname).a
-cleanfiles += $(link-out-dir$(sm))/$(libname).a
+all: $(libname).a
+cleanfiles += $(libname).a
 
-$(link-out-dir$(sm))/$(libname).a: $(objs)
+$(libname).a: $(objs)
 	@echo '  AR      $@'
 	$(q)rm -f $@ && $(AR$(sm)) rcs $@ $^
 endif

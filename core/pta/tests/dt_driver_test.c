@@ -443,14 +443,16 @@ static const char *dt_test_clk_name[DT_TEST_CLK_COUNT] = {
 /* Emulating a clock does not require operators */
 static const struct clk_ops dt_test_clock_provider_ops;
 
-static TEE_Result dt_test_get_clk(struct dt_pargs *args, void *data,
-				  struct clk **out_device)
+static struct clk *dt_test_get_clk(struct dt_driver_phandle_args *args,
+				   void *data, TEE_Result *res)
 {
 	struct clk *clk_ref = data;
 	struct clk *clk = NULL;
 
-	if (args->args_count != 1)
-		return TEE_ERROR_BAD_PARAMETERS;
+	if (args->args_count != 1) {
+		*res = TEE_ERROR_BAD_PARAMETERS;
+		return NULL;
+	}
 
 	switch (args->args[0]) {
 	case DT_TEST_CLK0_BINDING_ID:
@@ -461,13 +463,14 @@ static TEE_Result dt_test_get_clk(struct dt_pargs *args, void *data,
 		break;
 	default:
 		EMSG("Unexpected binding ID %"PRIu32, args->args[0]);
-		return TEE_ERROR_BAD_PARAMETERS;
+		*res = TEE_ERROR_BAD_PARAMETERS;
+		return NULL;
 	}
 
 	DT_TEST_MSG("Providing clock %s", clk_get_name(clk));
 
-	*out_device = clk;
-	return TEE_SUCCESS;
+	*res = TEE_SUCCESS;
+	return clk;
 }
 
 static TEE_Result dt_test_clock_provider_probe(const void *fdt, int node,
@@ -563,14 +566,16 @@ const struct rstctrl_ops dt_test_rstctrl_ops = {
 	.get_name = dt_test_rstctrl_name,
 };
 
-static TEE_Result dt_test_get_rstctrl(struct dt_pargs *args, void *data,
-				      struct rstctrl **out_device)
+static struct rstctrl *dt_test_get_rstctrl(struct dt_driver_phandle_args *args,
+					   void *data, TEE_Result *res)
 {
 	struct dt_test_rstctrl *ref = data;
 	struct rstctrl *rstctrl = NULL;
 
-	if (args->args_count != 1)
-		return TEE_ERROR_BAD_PARAMETERS;
+	if (args->args_count != 1) {
+		*res = TEE_ERROR_BAD_PARAMETERS;
+		return NULL;
+	}
 
 	switch (args->args[0]) {
 	case DT_TEST_RSTCTRL0_BINDING_ID:
@@ -581,14 +586,14 @@ static TEE_Result dt_test_get_rstctrl(struct dt_pargs *args, void *data,
 		break;
 	default:
 		EMSG("Unexpected binding ID %"PRIu32, args->args[0]);
-		return TEE_ERROR_BAD_PARAMETERS;
+		*res = TEE_ERROR_BAD_PARAMETERS;
+		return NULL;
 	}
 
 	DT_TEST_MSG("Providing reset controller %s", rstctrl_name(rstctrl));
 
-	*out_device = rstctrl;
-
-	return TEE_SUCCESS;
+	*res = TEE_SUCCESS;
+	return rstctrl;
 }
 
 static TEE_Result dt_test_rstctrl_provider_probe(const void *fdt, int offs,
@@ -693,43 +698,43 @@ static const struct gpio_ops dt_test_gpio_ops = {
 	.set_value = dt_test_gpio_set_value,
 };
 
-static TEE_Result dt_test_gpio_get_dt(struct dt_pargs *args, void *data,
-				      struct gpio **out_device)
+static struct gpio *dt_test_gpio_get_dt(struct dt_driver_phandle_args *a,
+					void *data, TEE_Result *res)
 {
-	TEE_Result res = TEE_ERROR_GENERIC;
 	struct gpio *gpio = NULL;
 	struct dt_test_gpio *gpios = (struct dt_test_gpio *)data;
 
-	res = gpio_dt_alloc_pin(args, &gpio);
-	if (res)
-		return res;
+	gpio = gpio_dt_alloc_pin(a, res);
+	if (*res)
+		return NULL;
 
 	switch (gpio->pin) {
 	case DT_TEST_GPIO0_PIN:
 		gpio->chip = &gpios[0].gpio_chip;
 		if (gpio->dt_flags != gpios[0].flags) {
 			EMSG("Unexpected dt_flags %#"PRIx32, gpio->dt_flags);
+			*res = TEE_ERROR_GENERIC;
 			free(gpio);
-			return TEE_ERROR_GENERIC;
+			return NULL;
 		}
 		break;
 	case DT_TEST_GPIO1_PIN:
 		gpio->chip = &gpios[1].gpio_chip;
 		if (gpio->dt_flags != gpios[1].flags) {
 			EMSG("Unexpected dt_flags %#"PRIx32, gpio->dt_flags);
+			*res = TEE_ERROR_GENERIC;
 			free(gpio);
-			return TEE_ERROR_GENERIC;
+			return NULL;
 		}
 		break;
 	default:
 		EMSG("Unexpected pin ID %u", gpio->pin);
+		*res = TEE_ERROR_BAD_PARAMETERS;
 		free(gpio);
-		return TEE_ERROR_BAD_PARAMETERS;
+		return NULL;
 	};
 
-	*out_device = gpio;
-
-	return TEE_SUCCESS;
+	return gpio;
 }
 
 static TEE_Result dt_test_gpio_provider_probe(const void *fdt, int offs,

@@ -24,6 +24,9 @@
 #include <tee/tee_svc_cryp.h>
 #include <tee/tee_svc.h>
 #include <tee/tee_svc_storage.h>
+#include <tee/tee_tpm.h>
+#include <tee/tee_sqlite.h>
+#include <tee/tee_tzvfs.h>
 #include <trace.h>
 #include <util.h>
 
@@ -119,6 +122,34 @@ static const struct syscall_entry tee_syscall_table[] = {
 	SYSCALL_ENTRY(syscall_not_supported),
 	SYSCALL_ENTRY(syscall_not_supported),
 	SYSCALL_ENTRY(syscall_cache_operation),
+	SYSCALL_ENTRY(syscall_tpm_get_version),
+	SYSCALL_ENTRY(syscall_sqlite_exec),
+	SYSCALL_ENTRY(syscall_tzvfs_open),
+	SYSCALL_ENTRY(syscall_tzvfs_close),
+	SYSCALL_ENTRY(syscall_tzvfs_getcwd),
+	SYSCALL_ENTRY(syscall_tzvfs_lstat),
+	SYSCALL_ENTRY(syscall_tzvfs_stat),
+	SYSCALL_ENTRY(syscall_tzvfs_fstat),
+	SYSCALL_ENTRY(syscall_tzvfs_fcntl),
+	SYSCALL_ENTRY(syscall_tzvfs_read),
+	SYSCALL_ENTRY(syscall_tzvfs_write),
+	SYSCALL_ENTRY(syscall_tzvfs_geteuid),
+	SYSCALL_ENTRY(syscall_tzvfs_unlink),
+	SYSCALL_ENTRY(syscall_tzvfs_access),
+	SYSCALL_ENTRY(syscall_tzvfs_mmap),
+	SYSCALL_ENTRY(syscall_tzvfs_mremap),
+	SYSCALL_ENTRY(syscall_tzvfs_munmap),
+	SYSCALL_ENTRY(syscall_tzvfs_strcspn),
+	SYSCALL_ENTRY(syscall_tzvfs_utimes),
+	SYSCALL_ENTRY(syscall_tzvfs_lseek),
+	SYSCALL_ENTRY(syscall_tzvfs_fsync),
+	SYSCALL_ENTRY(syscall_tzvfs_getenv),
+	SYSCALL_ENTRY(syscall_tzvfs_getpid),
+	SYSCALL_ENTRY(syscall_tzvfs_time),
+	SYSCALL_ENTRY(syscall_tzvfs_sleep),
+	SYSCALL_ENTRY(syscall_tzvfs_gettimeofday),
+	SYSCALL_ENTRY(syscall_tzvfs_fchown),
+	SYSCALL_ENTRY(syscall_sqlite_exec_v2),
 };
 
 /*

@@ -100,6 +100,7 @@ TEE_Result tee_do_cipher_update(void *ctx, uint32_t algo,
 				TEE_OperationMode mode, bool last_block,
 				const uint8_t *data, size_t len, uint8_t *dst)
 {
+	// DMSG("has been called\n");
 	TEE_Result res;
 	size_t block_size;
 

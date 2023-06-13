@@ -109,7 +109,6 @@ static void assert_type_is_valid(enum dt_driver_type type)
 	case DT_DRIVER_GPIO:
 	case DT_DRIVER_I2C:
 	case DT_DRIVER_PINCTRL:
-	case DT_DRIVER_INTERRUPT:
 		return;
 	default:
 		assert(0);
@@ -186,9 +185,6 @@ int fdt_get_dt_driver_cells(const void *fdt, int nodeoffset,
 	case DT_DRIVER_CLK:
 		cells_name = "#clock-cells";
 		break;
-	case DT_DRIVER_INTERRUPT:
-		cells_name = "#interrupt-cells";
-		break;
 	case DT_DRIVER_RSTCTRL:
 		cells_name = "#reset-cells";
 		break;
@@ -240,18 +236,20 @@ dt_driver_get_provider_by_phandle(uint32_t phandle, enum dt_driver_type type)
 	return NULL;
 }
 
-static TEE_Result device_from_provider_prop(struct dt_driver_provider *prv,
-					    const void *fdt, int phandle_node,
-					    const uint32_t *prop, void **device)
+static void *device_from_provider_prop(struct dt_driver_provider *prv,
+				       const void *fdt, int phandle_node,
+				       const uint32_t *prop, TEE_Result *res)
 {
-	TEE_Result res = TEE_ERROR_GENERIC;
-	struct dt_pargs *pargs = NULL;
+	struct dt_driver_phandle_args *pargs = NULL;
 	unsigned int n = 0;
+	void *device = NULL;
 
 	pargs = calloc(1, prv->provider_cells * sizeof(uint32_t *) +
 		       sizeof(*pargs));
-	if (!pargs)
-		return TEE_ERROR_OUT_OF_MEMORY;
+	if (!pargs) {
+		*res = TEE_ERROR_OUT_OF_MEMORY;
+		return NULL;
+	}
 
 	pargs->fdt = fdt;
 	pargs->phandle_node = phandle_node;
@@ -259,15 +257,15 @@ static TEE_Result device_from_provider_prop(struct dt_driver_provider *prv,
 	for (n = 0; n < prv->provider_cells; n++)
 		pargs->args[n] = fdt32_to_cpu(prop[n + 1]);
 
-	res = prv->get_of_device(pargs, prv->priv_data, device);
+	device = prv->get_of_device(pargs, prv->priv_data, res);
 
 	free(pargs);
 
-	return res;
+	return device;
 }
 
-TEE_Result dt_driver_device_from_parent(const void *fdt, int nodeoffset,
-					enum dt_driver_type type, void **device)
+void *dt_driver_device_from_parent(const void *fdt, int nodeoffset,
+				   enum dt_driver_type type, TEE_Result *res)
 {
 	int parent = -1;
 	struct dt_driver_provider *prv = NULL;
@@ -275,60 +273,26 @@ TEE_Result dt_driver_device_from_parent(const void *fdt, int nodeoffset,
 	assert(fdt == get_secure_dt());
 
 	parent = fdt_parent_offset(fdt, nodeoffset);
-	if (parent < 0)
-		return TEE_ERROR_GENERIC;
+	if (parent < 0) {
+		*res =  TEE_ERROR_GENERIC;
+		return NULL;
+	}
 
 	prv = dt_driver_get_provider_by_node(parent, type);
 	if (!prv) {
 		/* No provider registered yet */
-		return TEE_ERROR_DEFER_DRIVER_INIT;
+		*res = TEE_ERROR_DEFER_DRIVER_INIT;
+		return NULL;
 	}
 
-	return device_from_provider_prop(prv, fdt, nodeoffset, NULL, device);
+	return device_from_provider_prop(prv, fdt, nodeoffset, NULL, res);
 }
 
-TEE_Result dt_driver_device_from_node_idx_prop_phandle(const char *prop_name,
-						       const void *fdt,
-						       int nodeoffs,
-						       unsigned int prop_index,
-						       enum dt_driver_type type,
-						       uint32_t phandle,
-						       void **device)
-{
-	int len = 0;
-	const uint32_t *prop = NULL;
-	int phandle_node_unused = -1;
-	struct dt_driver_provider *prv = NULL;
-
-	prop = fdt_getprop(fdt, nodeoffs, prop_name, &len);
-	if (!prop) {
-		if (len != -FDT_ERR_NOTFOUND) {
-			DMSG("Corrupted node %s", prop_name);
-			return TEE_ERROR_GENERIC;
-		} else {
-			DMSG("Property %s missing in node %s", prop_name,
-			     fdt_get_name(fdt, nodeoffs, NULL));
-			return TEE_ERROR_ITEM_NOT_FOUND;
-		}
-	}
-
-	prv = dt_driver_get_provider_by_phandle(phandle, type);
-	if (!prv)
-		return TEE_ERROR_DEFER_DRIVER_INIT;
-
-	prop_index *= dt_driver_provider_cells(prv);
-	if ((prop_index + 1) * sizeof(*prop) > (size_t)len)
-		return TEE_ERROR_ITEM_NOT_FOUND;
-
-	return device_from_provider_prop(prv, fdt, phandle_node_unused,
-					 prop + prop_index, device);
-}
-
-TEE_Result dt_driver_device_from_node_idx_prop(const char *prop_name,
-					       const void *fdt, int nodeoffset,
-					       unsigned int prop_idx,
-					       enum dt_driver_type type,
-					       void **device)
+void *dt_driver_device_from_node_idx_prop(const char *prop_name,
+					  const void *fdt, int nodeoffset,
+					  unsigned int prop_idx,
+					  enum dt_driver_type type,
+					  TEE_Result *res)
 {
 	int len = 0;
 	int idx = 0;
@@ -343,7 +307,8 @@ TEE_Result dt_driver_device_from_node_idx_prop(const char *prop_name,
 	if (!prop) {
 		DMSG("Property %s missing in node %s", prop_name,
 		     fdt_get_name(fdt, nodeoffset, NULL));
-		return TEE_ERROR_ITEM_NOT_FOUND;
+		*res = TEE_ERROR_ITEM_NOT_FOUND;
+		return NULL;
 	}
 
 	while (idx < len) {
@@ -365,20 +330,29 @@ TEE_Result dt_driver_device_from_node_idx_prop(const char *prop_name,
 		 */
 		if (dt_driver_use_parent_controller(type)) {
 			phandle_node = fdt_node_offset_by_phandle(fdt, phandle);
-			if (phandle_node < 0)
-				return TEE_ERROR_GENERIC;
+			if (phandle_node < 0) {
+				*res = TEE_ERROR_GENERIC;
+				return NULL;
+			}
 
 			nodeoffset = fdt_parent_offset(fdt, phandle_node);
-			if (nodeoffset < 0)
-				return TEE_ERROR_GENERIC;
+			if (nodeoffset < 0) {
+				*res = TEE_ERROR_GENERIC;
+				return NULL;
+			}
 
 			prv = dt_driver_get_provider_by_node(nodeoffset, type);
-			if (!prv)
-				return TEE_ERROR_DEFER_DRIVER_INIT;
+			if (!prv) {
+				*res = TEE_ERROR_DEFER_DRIVER_INIT;
+				return NULL;
+			}
 		} else {
 			prv = dt_driver_get_provider_by_phandle(phandle, type);
-			if (!prv)
-				return TEE_ERROR_DEFER_DRIVER_INIT;
+			if (!prv) {
+				/* No provider registered yet */
+				*res = TEE_ERROR_DEFER_DRIVER_INIT;
+				return NULL;
+			}
 		}
 
 		prv_cells = dt_driver_provider_cells(prv);
@@ -389,10 +363,11 @@ TEE_Result dt_driver_device_from_node_idx_prop(const char *prop_name,
 		}
 
 		return device_from_provider_prop(prv, fdt, phandle_node,
-						 prop + idx32, device);
+						 prop + idx32, res);
 	}
 
-	return TEE_ERROR_ITEM_NOT_FOUND;
+	*res = TEE_ERROR_ITEM_NOT_FOUND;
+	return NULL;
 }
 
 static void __maybe_unused print_probe_list(const void *fdt __maybe_unused)

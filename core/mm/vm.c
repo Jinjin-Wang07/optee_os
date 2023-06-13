@@ -142,8 +142,8 @@ static void rem_um_region(struct user_mode_ctx *uctx, struct vm_region *r)
 		tee_pager_rem_um_region(uctx, r->va, r->size);
 	} else {
 		pgt_clear_range(uctx, r->va, r->va + r->size);
-		tlbi_va_range_asid(r->va, r->size, SMALL_PAGE_SIZE,
-				   uctx->vm_info.asid);
+		tlbi_mva_range_asid(r->va, r->size, SMALL_PAGE_SIZE,
+				    uctx->vm_info.asid);
 	}
 
 	/*
@@ -778,8 +778,8 @@ TEE_Result vm_set_prot(struct user_mode_ctx *uctx, vaddr_t va, size_t len,
 			 * is needed. We also depend on the dsb() performed
 			 * as part of the TLB invalidation.
 			 */
-			tlbi_va_range_asid(r->va, r->size, SMALL_PAGE_SIZE,
-					   uctx->vm_info.asid);
+			tlbi_mva_range_asid(r->va, r->size, SMALL_PAGE_SIZE,
+					    uctx->vm_info.asid);
 		}
 	}
 
@@ -1297,6 +1297,7 @@ void *vm_pa2va(const struct user_mode_ctx *uctx, paddr_t pa, size_t pa_size)
 TEE_Result vm_check_access_rights(const struct user_mode_ctx *uctx,
 				  uint32_t flags, uaddr_t uaddr, size_t len)
 {
+	// DMSG("has been called\n");
 	uaddr_t a = 0;
 	uaddr_t end_addr = 0;
 	size_t addr_incr = MIN(CORE_MMU_USER_CODE_SIZE,

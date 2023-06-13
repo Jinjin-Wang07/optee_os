@@ -9,7 +9,6 @@
 #include <console.h>
 #include <drivers/gic.h>
 #include <drivers/stm32_etzpc.h>
-#include <drivers/stm32_gpio.h>
 #include <drivers/stm32_iwdg.h>
 #include <drivers/stm32_tamp.h>
 #include <drivers/stm32_uart.h>
@@ -244,6 +243,41 @@ static TEE_Result set_etzpc_secure_configuration(void)
 
 driver_init_late(set_etzpc_secure_configuration);
 #endif /* CFG_STM32_ETZPC */
+
+#ifdef CFG_STM32_GPIO
+
+#define NB_PINS_PER_BANK		U(16)
+#define NB_PINS_BANK_H			U(14)
+#define NB_PINS_BANK_I			U(8)
+
+static TEE_Result set_all_gpios_non_secure(void)
+{
+	unsigned int bank = 0;
+	unsigned int pin = 0;
+	unsigned int nb_pin_bank = 0;
+
+	for (bank = 0; bank <= GPIO_BANK_I; bank++) {
+		switch (bank) {
+		case GPIO_BANK_H:
+			nb_pin_bank = NB_PINS_BANK_H;
+			break;
+		case GPIO_BANK_I:
+			nb_pin_bank = NB_PINS_BANK_I;
+			break;
+		default:
+			nb_pin_bank = NB_PINS_PER_BANK;
+			break;
+		}
+
+		for (pin = 0; pin <= nb_pin_bank; pin++)
+			stm32_gpio_set_secure_cfg(bank, pin, false);
+	}
+
+	return TEE_SUCCESS;
+}
+
+early_init_late(set_all_gpios_non_secure);
+#endif /* CFG_STM32_GPIO */
 #endif /* CFG_STM32MP13 */
 
 static TEE_Result init_stm32mp1_drivers(void)
@@ -373,6 +407,33 @@ static bool __maybe_unused bank_is_valid(unsigned int bank)
 	panic();
 }
 
+vaddr_t stm32_get_gpio_bank_base(unsigned int bank)
+{
+	static struct io_pa_va base = { .pa = GPIOA_BASE };
+
+	static_assert(GPIO_BANK_A == 0);
+	assert(bank_is_valid(bank));
+
+	if (IS_ENABLED(CFG_STM32MP15)) {
+		static struct io_pa_va zbase = { .pa = GPIOZ_BASE };
+
+		/* Get secure mapping address for GPIOZ */
+		if (bank == GPIO_BANK_Z)
+			return io_pa_or_va_secure(&zbase, GPIO_BANK_OFFSET);
+
+		/* Other are mapped non-secure */
+		return io_pa_or_va_nsec(&base, (bank + 1) * GPIO_BANK_OFFSET) +
+		       (bank * GPIO_BANK_OFFSET);
+	}
+
+	if (IS_ENABLED(CFG_STM32MP13))
+		return io_pa_or_va_secure(&base,
+					  (bank + 1) * GPIO_BANK_OFFSET) +
+		       (bank * GPIO_BANK_OFFSET);
+
+	panic();
+}
+
 unsigned int stm32_get_gpio_bank_offset(unsigned int bank)
 {
 	assert(bank_is_valid(bank));
@@ -381,6 +442,28 @@ unsigned int stm32_get_gpio_bank_offset(unsigned int bank)
 		return 0;
 
 	return bank * GPIO_BANK_OFFSET;
+}
+
+unsigned int stm32_get_gpio_bank_clock(unsigned int bank)
+{
+	assert(bank_is_valid(bank));
+
+#ifdef CFG_STM32MP15
+	if (bank == GPIO_BANK_Z)
+		return GPIOZ;
+#endif
+
+	return GPIOA + bank;
+}
+
+struct clk *stm32_get_gpio_bank_clk(unsigned int bank)
+{
+	assert(bank_is_valid(bank));
+
+	if (!IS_ENABLED(CFG_DRIVERS_CLK))
+		return NULL;
+
+	return stm32mp_rcc_clock_id_to_clk(stm32_get_gpio_bank_clock(bank));
 }
 
 #ifdef CFG_STM32_IWDG

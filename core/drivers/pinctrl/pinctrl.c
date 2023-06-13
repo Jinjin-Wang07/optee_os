@@ -96,18 +96,15 @@ TEE_Result pinctrl_get_state_by_idx(const void *fdt, int nodeoffset,
 
 	state->conf_count = conf_count;
 	for (conf_id = 0; conf_id < conf_count; conf_id++) {
-		void *pinconf = NULL;
-
-		res = dt_driver_device_from_node_idx_prop(prop_name, fdt,
-							  nodeoffset, conf_id,
-							  DT_DRIVER_PINCTRL,
-							  &pinconf);
+		state->confs[conf_id] =
+			dt_driver_device_from_node_idx_prop(prop_name, fdt,
+							    nodeoffset, conf_id,
+							    DT_DRIVER_PINCTRL,
+							    &res);
 		if (res) {
 			free(state);
 			return res;
 		}
-
-		state->confs[conf_id] = pinconf;
 	}
 
 	*state_ret = state;
@@ -128,10 +125,7 @@ TEE_Result pinctrl_get_state_by_name(const void *fdt, int nodeoffset,
 					      name);
 	if (pinctrl_index < 0) {
 		*state = NULL;
-		if (pinctrl_index == -FDT_ERR_NOTFOUND)
-			return TEE_ERROR_ITEM_NOT_FOUND;
-		else
-			return TEE_ERROR_GENERIC;
+		return TEE_ERROR_GENERIC;
 	}
 
 	return pinctrl_get_state_by_idx(fdt, nodeoffset, pinctrl_index, state);

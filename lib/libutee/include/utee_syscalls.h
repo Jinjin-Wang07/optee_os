@@ -13,6 +13,7 @@
 #include <utee_types.h>
 #include <tee_api_types.h>
 #include <trace.h>
+#include <tzvfs_types.h>
 
 /*
  * Arguments must use the native register width, unless it's a signed
@@ -224,5 +225,62 @@ TEE_Result _utee_storage_obj_seek(unsigned long obj, int32_t offset,
 TEE_Result _utee_cache_operation(void *va, size_t l, unsigned long op);
 
 TEE_Result _utee_gprof_send(void *buf, size_t size, uint32_t *id);
+
+TEE_Result utee_tpm_get_version(void *buf);
+
+TEE_Result utee_sqlite_exec(const void *sql, size_t sql_size, void *res, size_t res_size);
+
+/* Second version of optee-os api*/
+TEE_Result utee_sqlite_exec_v2(const void *sql, size_t sql_size, void *res, size_t res_size);
+
+int utee_tzvfs_open(int *tzvfs_errno, const char *filename, int flags, mode_t mode);
+
+int utee_tzvfs_close(int *tzvfs_errno, int fd);
+
+char *utee_tzvfs_getcwd(int *tzvfs_errno, char *buf, size_t size);
+
+int utee_tzvfs_lstat(int *tzvfs_errno, const char* path, struct tzvfs_stat *buf);
+
+int utee_tzvfs_stat(int *tzvfs_errno, const char *path, struct tzvfs_stat *buf);
+
+int utee_tzvfs_fstat(int *tzvfs_errno, int fd, struct tzvfs_stat *buf);
+
+int utee_tzvfs_fcntl(int *tzvfs_errno, int fd, int cmd, struct tzvfs_flock *arg);
+
+ssize_t utee_tzvfs_read(int *tzvfs_errno, int fd, void *buf, size_t count);
+
+ssize_t utee_tzvfs_write(int *tzvfs_errno, int fd, const void *buf, size_t count);
+
+uid_t utee_tzvfs_geteuid(int *tzvfs_errno);
+
+int utee_tzvfs_unlink(int *tzvfs_errno, const char *pathname);
+
+int utee_tzvfs_access(int *tzvfs_errno, const char *pathname, int mode);
+
+void *utee_tzvfs_mmap(int *tzvfs_errno, void *addr, size_t len, int prot, int flags, int fildes, off_t off);
+
+void *utee_tzvfs_mremap(int *tzvfs_errno, void *old_address, size_t old_size, size_t new_size, int flags);
+
+int utee_tzvfs_munmap(int *tzvfs_errno, void *addr, size_t length);
+
+size_t utee_tzvfs_strcspn(int *tzvfs_errno, const char *str1, const char *str2);
+
+int utee_tzvfs_utimes(int *tzvfs_errno, const char *filename, const struct tzvfs_timeval times[2]);
+
+off_t utee_tzvfs_lseek(int *tzvfs_errno, int fd, off_t offset, int whence);
+
+int utee_tzvfs_fsync(int *tzvfs_errno, int fd);
+
+char* utee_tzvfs_getenv(int *tzvfs_errno, const char *name);
+
+pid_t utee_tzvfs_getpid(int *tzvfs_errno);
+
+time_t utee_tzvfs_time(int *tzvfs_errno, time_t *t);
+
+unsigned int utee_tzvfs_sleep(int *tzvfs_errno, unsigned int seconds);
+
+int utee_tzvfs_gettimeofday(int *tzvfs_errno, struct tzvfs_timeval *tv, struct tzvfs_timezone *tz);
+
+int utee_tzvfs_fchown(int *tzvfs_errno, int fd, uid_t owner, gid_t group);
 
 #endif /* UTEE_SYSCALLS_H */

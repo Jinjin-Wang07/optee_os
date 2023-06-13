@@ -153,6 +153,7 @@ static TEE_Result cipher_update(struct crypto_cipher_ctx *ctx, bool last_block,
  */
 static void cipher_final(struct crypto_cipher_ctx *ctx)
 {
+	// DMSG("Has been called\n");
 	struct crypto_cipher *cipher = to_cipher_ctx(ctx);
 
 	if (cipher->op && cipher->op->final)

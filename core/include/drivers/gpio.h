@@ -6,7 +6,6 @@
 #ifndef DRIVERS_GPIO_H
 #define DRIVERS_GPIO_H
 
-#include <assert.h>
 #include <dt-bindings/gpio/gpio.h>
 #include <kernel/dt_driver.h>
 #include <stdint.h>
@@ -47,34 +46,23 @@ enum gpio_interrupt {
 	GPIO_INTERRUPT_ENABLE
 };
 
-struct gpio;
-struct gpio_ops;
-
 struct gpio_chip {
 	const struct gpio_ops *ops;
 };
 
 struct gpio_ops {
-	/* Get GPIO direction current configuration */
 	enum gpio_dir (*get_direction)(struct gpio_chip *chip,
 				       unsigned int gpio_pin);
-	/* Set GPIO direction configuration */
 	void (*set_direction)(struct gpio_chip *chip, unsigned int gpio_pin,
 			      enum gpio_dir direction);
-	/* Get GPIO current level */
 	enum gpio_level (*get_value)(struct gpio_chip *chip,
 				     unsigned int gpio_pin);
-	/* Set GPIO level */
 	void (*set_value)(struct gpio_chip *chip, unsigned int gpio_pin,
 			  enum gpio_level value);
-	/* Get GPIO interrupt state */
 	enum gpio_interrupt (*get_interrupt)(struct gpio_chip *chip,
 					     unsigned int gpio_pin);
-	/* Enable or disable a GPIO interrupt */
 	void (*set_interrupt)(struct gpio_chip *chip, unsigned int gpio_pin,
 			      enum gpio_interrupt enable_disable);
-	/* Release GPIO resources */
-	void (*put)(struct gpio_chip *chip, struct gpio *gpio);
 };
 
 /*
@@ -125,19 +113,11 @@ static inline enum gpio_level gpio_get_value(struct gpio *gpio)
 	return value;
 }
 
-static inline void gpio_put(struct gpio *gpio)
-{
-	assert(!gpio || (gpio->chip && gpio->chip->ops));
-
-	if (gpio && gpio->chip->ops->put)
-		gpio->chip->ops->put(gpio->chip, gpio);
-}
-
 #if defined(CFG_DT) && defined(CFG_DRIVERS_GPIO)
 /**
  * gpio_dt_alloc_pin() - Get an allocated GPIO instance from its DT phandle
  *
- * @pargs: Pointer to devicetree description of the GPIO controller to parse
+ * @a: Pointer to devicetree description of the GPIO controller to parse
  * @res: Output result code of the operation:
  *	TEE_SUCCESS in case of success
  *	TEE_ERROR_DEFER_DRIVER_INIT if GPIO controller is not initialized
@@ -147,7 +127,8 @@ static inline void gpio_put(struct gpio *gpio)
  * the devicetree description or NULL if invalid description in which case
  * @res provides the error code.
  */
-TEE_Result gpio_dt_alloc_pin(struct dt_pargs *pargs, struct gpio **gpio);
+struct gpio *gpio_dt_alloc_pin(struct dt_driver_phandle_args *a,
+			       TEE_Result *res);
 
 /**
  * gpio_dt_get_by_index() - Get a GPIO controller at a specific index in
@@ -171,15 +152,18 @@ static inline TEE_Result gpio_dt_get_by_index(const void *fdt __unused,
 					      int nodeoffset __unused,
 					      unsigned int index  __unused,
 					      const char *gpio_name  __unused,
-					      struct gpio **gpio __unused)
+					      struct gpio **gpio)
 {
+	*gpio = NULL;
 	return TEE_ERROR_NOT_SUPPORTED;
 }
 
-static inline TEE_Result gpio_dt_alloc_pin(struct dt_pargs *pargs __unused,
-					   struct gpio **gpio __unused)
+static inline
+struct gpio *gpio_dt_alloc_pin(struct dt_driver_phandle_args *a __unused,
+			       TEE_Result *res)
 {
-	return TEE_ERROR_NOT_SUPPORTED;
+	*res = TEE_ERROR_NOT_SUPPORTED;
+	return NULL;
 }
 #endif /*CFG_DT*/
 
@@ -187,7 +171,7 @@ static inline TEE_Result gpio_dt_alloc_pin(struct dt_pargs *pargs __unused,
  * gpio_dt_get_func - Typedef of function to get GPIO instance from
  * devicetree properties
  *
- * @pargs: Pointer to GPIO phandle and its argument in the FDT
+ * @a: Pointer to GPIO phandle and its argument in the FDT
  * @data: Pointer to the data given at gpio_dt_register_provider() call
  * @res: Output result code of the operation:
  *	TEE_SUCCESS in case of success
@@ -198,8 +182,8 @@ static inline TEE_Result gpio_dt_alloc_pin(struct dt_pargs *pargs __unused,
  * the devicetree description or NULL if invalid description in which case
  * @res provides the error code.
  */
-typedef TEE_Result (*gpio_dt_get_func)(struct dt_pargs *pargs, void *data,
-				       struct gpio **out_gpio);
+typedef struct gpio *(*gpio_dt_get_func)(struct dt_driver_phandle_args *a,
+					 void *data, TEE_Result *res);
 
 /**
  * gpio_dt_register_provider() - Register a GPIO controller provider

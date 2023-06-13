@@ -278,19 +278,20 @@ static const struct i2c_ctrl_ops atmel_i2c_ops = {
 	.smbus = atmel_i2c_smbus,
 };
 
-static TEE_Result atmel_i2c_get_dt_i2c(struct dt_pargs *args, void *data,
-				       struct i2c_dev **out_device)
+static struct i2c_dev *atmel_i2c_get_dt_i2c(struct dt_driver_phandle_args *a,
+					    void *data, TEE_Result *res)
 {
 	struct i2c_dev *i2c_dev = NULL;
 	struct i2c_ctrl *i2c_ctrl = data;
 
-	i2c_dev = i2c_create_dev(i2c_ctrl, args->fdt, args->phandle_node);
-	if (!i2c_dev)
-		return TEE_ERROR_OUT_OF_MEMORY;
+	i2c_dev = i2c_create_dev(i2c_ctrl, a->fdt, a->phandle_node);
+	if (!i2c_dev) {
+		*res = TEE_ERROR_OUT_OF_MEMORY;
+		return NULL;
+	}
 
-	*out_device = i2c_dev;
-
-	return TEE_SUCCESS;
+	*res = TEE_SUCCESS;
+	return i2c_dev;
 }
 
 static TEE_Result atmel_i2c_node_probe(const void *fdt, int node,

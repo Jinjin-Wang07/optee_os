@@ -39,7 +39,7 @@ WARNS ?= 3
 PYTHON3 ?= python3
 
 # Define DEBUG=1 to compile without optimization (forces -O0)
-# DEBUG=1
+DEBUG=1
 ifeq ($(DEBUG),1)
 # For backwards compatibility
 $(call force,CFG_CC_OPT_LEVEL,0)
@@ -67,13 +67,13 @@ CFG_TEE_CORE_DEBUG ?= y
 # 2: error + info
 # 3: error + info + debug
 # 4: error + info + debug + flow
-CFG_TEE_CORE_LOG_LEVEL ?= 2
+CFG_TEE_CORE_LOG_LEVEL ?= 3
 
 # TA log level
 # If user-mode library libutils.a is built with CFG_TEE_TA_LOG_LEVEL=0,
 # TA tracing is disabled regardless of the value of CFG_TEE_TA_LOG_LEVEL
 # when the TA is built.
-CFG_TEE_TA_LOG_LEVEL ?= 1
+CFG_TEE_TA_LOG_LEVEL ?= 3
 
 # TA enablement
 # When defined to "y", TA traces are output according to
@@ -308,7 +308,8 @@ CFG_TA_ASLR_MAX_OFFSET_PAGES ?= 128
 # When this flag is enabled, the early init code will introduce a random
 # offset when mapping TEE Core. ASLR makes the exploitation of memory
 # corruption vulnerabilities more difficult.
-CFG_CORE_ASLR ?= y
+# CFG_CORE_ASLR ?= y
+CFG_CORE_ASLR ?= n
 
 # Stack Protection for TEE Core
 # This flag enables the compiler stack protection mechanisms -fstack-protector.

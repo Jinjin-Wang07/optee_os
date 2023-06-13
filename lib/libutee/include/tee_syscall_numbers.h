@@ -80,7 +80,65 @@
 /* End of deprecated Secure Element API syscalls */
 #define TEE_SCN_CACHE_OPERATION			70
 
-#define TEE_SCN_MAX				70
+#define TEE_SCN_TPM_GET_VERSION         71
+
+#define TEE_SCN_SQLITE_EXEC             72
+
+#define TEE_SCN_TZVFS_OPEN              73
+
+#define TEE_SCN_TZVFS_CLOSE             74
+
+#define TEE_SCN_TZVFS_GETCWD            75
+
+#define TEE_SCN_TZVFS_LSTAT             76
+
+#define TEE_SCN_TZVFS_STAT              77
+
+#define TEE_SCN_TZVFS_FSTAT             78
+
+#define TEE_SCN_TZVFS_FCNTL             79
+
+#define TEE_SCN_TZVFS_READ              80
+
+#define TEE_SCN_TZVFS_WRITE             81
+
+#define TEE_SCN_TZVFS_GETEUID           82
+
+#define TEE_SCN_TZVFS_UNLINK            83
+
+#define TEE_SCN_TZVFS_ACCESS            84
+
+#define TEE_SCN_TZVFS_MMAP              85
+
+#define TEE_SCN_TZVFS_MREMAP            86
+
+#define TEE_SCN_TZVFS_MUNMAP            87
+
+#define TEE_SCN_TZVFS_STRCSPN           88
+
+#define TEE_SCN_TZVFS_UTIMES            89
+
+#define TEE_SCN_TZVFS_LSEEK             90
+
+#define TEE_SCN_TZVFS_FSYNC             91
+
+#define TEE_SCN_TZVFS_GETENV            92
+
+#define TEE_SCN_TZVFS_GETPID            93
+
+#define TEE_SCN_TZVFS_TIME              94
+
+#define TEE_SCN_TZVFS_SLEEP             95
+
+#define TEE_SCN_TZVFS_GETTIMEOFDAY      96
+
+#define TEE_SCN_TZVFS_FCHOWN            97
+
+// #define TEE_SCN_MAX                     97
+
+#define TEE_SCN_SQLITE_EXEC_V2             98
+
+#define TEE_SCN_MAX                     98
 
 /* Maximum number of allowed arguments for a syscall */
 #define TEE_SVC_MAX_ARGS			8

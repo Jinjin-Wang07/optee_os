@@ -204,26 +204,24 @@ static const struct gpio_ops atmel_piobu_ops = {
 	.set_interrupt = secumod_gpio_set_interrupt,
 };
 
-static TEE_Result secumod_dt_get(struct dt_pargs *pargs, void *data,
-				 struct gpio **out_gpio)
+static struct gpio *secumod_dt_get(struct dt_driver_phandle_args *a, void *data,
+				   TEE_Result *res)
 {
-	TEE_Result res = TEE_ERROR_GENERIC;
 	struct gpio *gpio = NULL;
 	struct gpio_chip *chip = data;
 
-	res = gpio_dt_alloc_pin(pargs, &gpio);
-	if (res)
-		return res;
+	gpio = gpio_dt_alloc_pin(a, res);
+	if (*res)
+		return NULL;
 
 	if (gpio_protected & BIT32(gpio->pin)) {
 		free(gpio);
-		return TEE_ERROR_GENERIC;
+		return NULL;
 	}
 
 	gpio->chip = chip;
-	*out_gpio = gpio;
 
-	return TEE_SUCCESS;
+	return gpio;
 }
 
 static enum itr_return secumod_it_handler(struct itr_handler *handler __unused)

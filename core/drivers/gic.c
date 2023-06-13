@@ -66,7 +66,9 @@
 #define ITARGETSR_FIELD_BITS	8
 #define ITARGETSR_FIELD_MASK	0xff
 
-#define GICD_TYPER_IT_LINES_NUM_MASK	0x1f
+/* Maximum number of interrups a GIC can support */
+#define GIC_MAX_INTS		1020
+
 #define GICC_IAR_IT_ID_MASK	0x3ff
 #define GICC_IAR_CPU_ID_MASK	0x7
 #define GICC_IAR_CPU_ID_SHIFT	10
@@ -105,8 +107,8 @@ static size_t probe_max_it(vaddr_t gicc_base __maybe_unused, vaddr_t gicd_base)
 	int i;
 	uint32_t old_ctlr;
 	size_t ret = 0;
-	size_t max_regs = io_read32(gicd_base + GICD_TYPER) &
-			  GICD_TYPER_IT_LINES_NUM_MASK;
+	const size_t max_regs = ((GIC_MAX_INTS + NUM_INTS_PER_REG - 1) /
+					NUM_INTS_PER_REG) - 1;
 
 	/*
 	 * Probe which interrupt number is the largest.

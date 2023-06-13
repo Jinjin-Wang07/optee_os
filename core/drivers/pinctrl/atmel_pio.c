@@ -76,10 +76,9 @@ static const struct pinctrl_ops pio_pinctrl_ops = {
 	.conf_free = pio_conf_free,
 };
 
-static TEE_Result pio_pinctrl_dt_get(struct dt_pargs *pargs, void *data,
-				     struct pinconf **out_pinconf)
+static struct pinconf *pio_pinctrl_dt_get(struct dt_driver_phandle_args *a,
+					  void *data, TEE_Result *res)
 {
-	TEE_Result res = TEE_ERROR_GENERIC;
 	int i = 0;
 	int func = 0;
 	int group = 0;
@@ -95,10 +94,11 @@ static TEE_Result pio_pinctrl_dt_get(struct dt_pargs *pargs, void *data,
 	struct atmel_pio *atmel_pio = data;
 	struct atmel_pio_pin_conf *pio_conf = NULL;
 
-	prop = fdt_getprop(pargs->fdt, pargs->phandle_node, "pinmux",
-			   &prop_count);
-	if (!prop)
-		return TEE_ERROR_ITEM_NOT_FOUND;
+	prop = fdt_getprop(a->fdt, a->phandle_node, "pinmux", &prop_count);
+	if (!prop) {
+		*res = TEE_ERROR_ITEM_NOT_FOUND;
+		return NULL;
+	}
 
 	prop_count /= sizeof(uint32_t);
 	for (i = 0; i < prop_count; i++) {
@@ -114,7 +114,8 @@ static TEE_Result pio_pinctrl_dt_get(struct dt_pargs *pargs, void *data,
 			if (group != pio_group) {
 				EMSG("Unexpected group %d vs %d", group,
 				     pio_group);
-				return TEE_ERROR_GENERIC;
+				*res = TEE_ERROR_GENERIC;
+				return NULL;
 			}
 		}
 
@@ -123,10 +124,9 @@ static TEE_Result pio_pinctrl_dt_get(struct dt_pargs *pargs, void *data,
 
 	cfg = func;
 
-	res = pinctrl_parse_dt_pin_modes(pargs->fdt, pargs->phandle_node,
-					 &cfg_modes);
-	if (res)
-		return res;
+	*res = pinctrl_parse_dt_pin_modes(a->fdt, a->phandle_node, &cfg_modes);
+	if (*res)
+		return NULL;
 
 	for (i = 0; i < PINCTRL_DT_PROP_MAX; i++) {
 		if (!bit_test(cfg_modes, i))
@@ -152,8 +152,10 @@ static TEE_Result pio_pinctrl_dt_get(struct dt_pargs *pargs, void *data,
 	free(cfg_modes);
 
 	pinconf = calloc(1, sizeof(*pinconf) + sizeof(*pio_conf));
-	if (!pinconf)
-		return TEE_ERROR_OUT_OF_MEMORY;
+	if (!pinconf) {
+		*res = TEE_ERROR_OUT_OF_MEMORY;
+		return NULL;
+	}
 
 	pio_conf = (struct atmel_pio_pin_conf *)(pinconf + 1);
 
@@ -164,9 +166,9 @@ static TEE_Result pio_pinctrl_dt_get(struct dt_pargs *pargs, void *data,
 	pinconf->priv = pio_conf;
 	pinconf->ops = &pio_pinctrl_ops;
 
-	*out_pinconf = pinconf;
+	*res = TEE_SUCCESS;
 
-	return TEE_SUCCESS;
+	return pinconf;
 }
 
 static void pio_init_hw(struct atmel_pio *pio)

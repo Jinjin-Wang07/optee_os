@@ -79,11 +79,11 @@ rv64-platform-abi ?= lp64d
 rv32-platform-isa ?= rv32imafd
 rv32-platform-abi ?= ilp32d
 
-rv64-platform-cflags += -mcmodel=$(riscv-platform-mcmodel)
-rv64-platform-cflags += -march=$(rv64-platform-isa) -mabi=$(rv64-platform-abi)
-rv64-platform-cflags += -Wno-missing-include-dirs
-rv32-platform-cflags += -mcmodel=$(riscv-platform-mcmodel)
-rv32-platform-cflags += -march=$(rv32-platform-isa) -mabi=$(rv32-platform-abi)
+rv64-platform-cppflags += -mcmodel=$(riscv-platform-mcmodel)
+rv64-platform-cppflags += -march=$(rv64-platform-isa) -mabi=$(rv64-platform-abi)
+rv64-platform-cppflags += -Wno-missing-include-dirs
+rv32-platform-cppflags += -mcmodel=$(riscv-platform-mcmodel)
+rv32-platform-cppflags += -march=$(rv32-platform-isa) -mabi=$(rv32-platform-abi)
 
 rv64-platform-cppflags += -DRV64=1 -D__LP64__=1
 rv32-platform-cppflags += -DRV32=1 -D__ILP32__=1
@@ -112,11 +112,6 @@ core-platform-aflags += $(platform-aflags-debug-info)
 
 ifeq ($(CFG_CORE_ASLR),y)
 core-platform-cflags += -fpie
-endif
-
-ifeq ($(CFG_UNWIND),y)
-core-platform-cppflags += -fno-omit-frame-pointer
-core-platform-cflags += -fno-omit-frame-pointer
 endif
 
 ifeq ($(CFG_RV64_core),y)

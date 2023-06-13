@@ -918,6 +918,7 @@ TEE_Result TEE_DigestDoFinal(TEE_OperationHandle operation, const void *chunk,
 	TEE_Result res = TEE_SUCCESS;
 	uint64_t hl = 0;
 	size_t len = 0;
+	DMSG("has been called\n");
 
 	if ((operation == TEE_HANDLE_NULL) ||
 	    (!chunk && chunkLen) ||
@@ -930,6 +931,7 @@ TEE_Result TEE_DigestDoFinal(TEE_OperationHandle operation, const void *chunk,
 		res = TEE_ERROR_BAD_PARAMETERS;
 		goto out;
 	}
+	DMSG("\n");
 	__utee_check_inout_annotation(hashLen, sizeof(*hashLen));
 
 	if (operation->operationState == TEE_OPERATION_STATE_EXTRACTING &&
@@ -938,24 +940,29 @@ TEE_Result TEE_DigestDoFinal(TEE_OperationHandle operation, const void *chunk,
 		 * This is not an Extendable-Output Function and we have
 		 * already started extracting
 		 */
+		DMSG("\n");
 		len = MIN(operation->block_size - operation->buffer_offs,
 			  *hashLen);
 		memcpy(hash, operation->buffer + operation->buffer_offs, len);
 		*hashLen = len;
+		DMSG("\n");
 	} else {
+		DMSG("\n");
 		hl = *hashLen;
+		DMSG("\n");
 		res = _utee_hash_final(operation->state, chunk, chunkLen, hash,
 				       &hl);
 		*hashLen = hl;
 		if (res)
 			goto out;
 	}
-
+   
 	/* Reset operation state */
+	DMSG("\n");
 	init_hash_operation(operation, NULL, 0);
 
 	operation->operationState = TEE_OPERATION_STATE_INITIAL;
-
+	
 out:
 	if (res != TEE_SUCCESS &&
 	    res != TEE_ERROR_SHORT_BUFFER)
@@ -1265,11 +1272,15 @@ TEE_Result TEE_CipherDoFinal(TEE_OperationHandle operation,
 			     const void *srcData, size_t srcLen,
 			     void *destData, size_t *destLen)
 {
+	// DMSG("Has been called\n");
+	
 	TEE_Result res = TEE_SUCCESS;
 	uint8_t *dst = destData;
 	size_t acc_dlen = 0;
 	uint64_t tmp_dlen = 0;
 	size_t req_dlen = 0;
+
+	// DMSG("Has been called\n");
 
 	if (operation == TEE_HANDLE_NULL || (!srcData && srcLen)) {
 		res = TEE_ERROR_BAD_PARAMETERS;
@@ -1330,6 +1341,8 @@ TEE_Result TEE_CipherDoFinal(TEE_OperationHandle operation,
 		res = TEE_ERROR_SHORT_BUFFER;
 		goto out;
 	}
+
+	DMSG("operation->block_size == %ld\n", operation->block_size);
 
 	if (operation->block_size > 1) {
 		if (srcLen) {

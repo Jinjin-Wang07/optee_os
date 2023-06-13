@@ -1,0 +1,54 @@
+I/TA: Hello World!
+D/TA:  inc_value:78 has been called
+I/TA: Got value: 42 from NW
+I/TA: Increase value to: 43
+D/TC:1 0 abort_handler:550 [abort] abort in User mode (TA will panic)
+E/TC:? 0 
+E/TC:? 0 User mode data-abort at address 0xa0 (translation fault)
+E/TC:? 0  esr 0x92000005  ttbr0 0x400000e1ae020   ttbr1 0x00000000   cidr 0x0
+E/TC:? 0  cpu #1          cpsr 0x80000100
+E/TC:? 0  x0  00000000000000a0 x1  0000000000000000
+E/TC:? 0  x2  00000000000000d2 x3  0000000040014e10
+E/TC:? 0  x4  00000000fffffff0 x5  0000000000000032
+E/TC:? 0  x6  000000004008acec x7  00000000ffffffff
+E/TC:? 0  x8  0000000000000020 x9  0000000040014b00
+E/TC:? 0  x10 0000000000000000 x11 0000000000000000
+E/TC:? 0  x12 0000000000000000 x13 00000000000000a0
+E/TC:? 0  x14 0000000000000000 x15 0000000000000000
+E/TC:? 0  x16 000000000e110d50 x17 0000000000000000
+E/TC:? 0  x18 0000000000000000 x19 0000000040014e20
+E/TC:? 0  x20 00000000fffffff8 x21 0000000000000000
+E/TC:? 0  x22 0000000040014c14 x23 0000000000000000
+E/TC:? 0  x24 0000000000000073 x25 0000000040014ce8
+E/TC:? 0  x26 0000000000000018 x27 0000000040014e20
+E/TC:? 0  x28 00000000400a16fc x29 00000000400149e0
+E/TC:? 0  x30 000000004008b3e0 elr 000000004008b7f4
+E/TC:? 0  sp_el0 00000000400149b0
+E/LD:  Status of TA 11111111-2450-11e4-abe2-0002a5d5c51b
+E/LD:   arch: aarch64
+E/LD:  region  0: va 0x40004000 pa 0x0e333000 size 0x002000 flags rw-s (ldelf)
+E/LD:  region  1: va 0x40006000 pa 0x0e335000 size 0x008000 flags r-xs (ldelf)
+E/LD:  region  2: va 0x4000e000 pa 0x0e33d000 size 0x001000 flags rw-s (ldelf)
+E/LD:  region  3: va 0x4000f000 pa 0x0e33e000 size 0x004000 flags rw-s (ldelf)
+E/LD:  region  4: va 0x40013000 pa 0x0e342000 size 0x001000 flags r--s
+E/LD:  region  5: va 0x40014000 pa 0x0e368000 size 0x001000 flags rw-s (stack)
+E/LD:  region  6: va 0x40015000 pa 0x7b8c8410 size 0x001000 flags rw-- (param)
+E/LD:  region  7: va 0x4008a000 pa 0x00001000 size 0x019000 flags r-xs [0]
+E/LD:  region  8: va 0x400a3000 pa 0x0001a000 size 0x00c000 flags rw-s [0]
+E/LD:   [0] 11111111-2450-11e4-abe2-0002a5d5c51b @ 0x4008a000
+E/LD:  Call stack:
+E/LD:   0x4008b7f4
+E/LD:   0x4008aa48
+E/LD:   0x4008aae8
+E/LD:   0x4008a668
+E/LD:   0x4008a7e4
+E/LD:   0x4008a2e4
+E/LD:   0x4008c310
+E/LD:   0x4008c100
+E/LD:   0x4008a3b4
+D/TC:? 0 user_ta_enter:176 tee_user_ta_enter: TA panicked with code 0xdeadbeef
+D/TC:? 0 destroy_ta_ctx_from_session:341 Remove references to context (0xe19c828)
+D/TC:? 0 destroy_context:326 Destroy TA ctx (0xe19c810)
+D/TC:? 0 tee_ta_close_session:529 csess 0xe19c870 id 2
+D/TC:? 0 tee_ta_close_session:548 Destroy session
+

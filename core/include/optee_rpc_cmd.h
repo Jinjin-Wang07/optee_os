@@ -16,6 +16,23 @@
  * and sends responses.
  */
 
+ /*
+ * TPM 
+ */
+#define OPTEE_MSG_RPC_CMD_TPM       60
+#define OPTEE_TPM_VERSION           6
+
+/*
+ * Sqlite3
+ */
+#define OPTEE_MSG_RPC_CMD_SQLITE    20
+#define OPTEE_MSG_RPC_CMD_SQLITEV  21
+
+/*
+ * TZVFS
+ */
+#define OPTEE_MSG_RPC_CMD_TZVFS    66
+
 /*
  * Load a TA into memory
  *

@@ -122,3 +122,59 @@
                      TEE_SCN_CRYP_OBJ_GENERATE_KEY, 4
 
         UTEE_SYSCALL _utee_cache_operation, TEE_SCN_CACHE_OPERATION, 3
+
+        UTEE_SYSCALL utee_tpm_get_version, TEE_SCN_TPM_GET_VERSION, 1
+
+        UTEE_SYSCALL utee_sqlite_exec, TEE_SCN_SQLITE_EXEC, 4
+        
+        UTEE_SYSCALL utee_tzvfs_open, TEE_SCN_TZVFS_OPEN, 4
+
+        UTEE_SYSCALL utee_tzvfs_close, TEE_SCN_TZVFS_CLOSE, 2
+
+        UTEE_SYSCALL utee_tzvfs_getcwd, TEE_SCN_TZVFS_GETCWD, 3
+
+        UTEE_SYSCALL utee_tzvfs_lstat, TEE_SCN_TZVFS_LSTAT, 3
+
+        UTEE_SYSCALL utee_tzvfs_stat, TEE_SCN_TZVFS_STAT, 3
+
+        UTEE_SYSCALL utee_tzvfs_fstat, TEE_SCN_TZVFS_FSTAT, 3
+
+        UTEE_SYSCALL utee_tzvfs_fcntl, TEE_SCN_TZVFS_FCNTL, 4
+
+        UTEE_SYSCALL utee_tzvfs_read, TEE_SCN_TZVFS_READ, 4
+
+        UTEE_SYSCALL utee_tzvfs_write, TEE_SCN_TZVFS_WRITE, 4
+        
+        UTEE_SYSCALL utee_tzvfs_geteuid, TEE_SCN_TZVFS_GETEUID, 1
+
+        UTEE_SYSCALL utee_tzvfs_unlink, TEE_SCN_TZVFS_UNLINK, 2
+
+        UTEE_SYSCALL utee_tzvfs_access, TEE_SCN_TZVFS_ACCESS, 3
+
+        UTEE_SYSCALL utee_tzvfs_mmap, TEE_SCN_TZVFS_MMAP, 7
+
+        UTEE_SYSCALL utee_tzvfs_mremap, TEE_SCN_TZVFS_MREMAP, 5
+
+        UTEE_SYSCALL utee_tzvfs_munmap, TEE_SCN_TZVFS_MUNMAP, 3
+
+        UTEE_SYSCALL utee_tzvfs_strcspn, TEE_SCN_TZVFS_STRCSPN, 3
+        
+        UTEE_SYSCALL utee_tzvfs_utimes, TEE_SCN_TZVFS_UTIMES, 3
+
+        UTEE_SYSCALL utee_tzvfs_lseek, TEE_SCN_TZVFS_LSEEK, 4
+
+        UTEE_SYSCALL utee_tzvfs_fsync, TEE_SCN_TZVFS_FSYNC, 2
+        
+        UTEE_SYSCALL utee_tzvfs_getenv, TEE_SCN_TZVFS_GETENV, 2
+
+        UTEE_SYSCALL utee_tzvfs_getpid, TEE_SCN_TZVFS_GETPID, 1
+
+        UTEE_SYSCALL utee_tzvfs_time, TEE_SCN_TZVFS_TIME, 2
+
+        UTEE_SYSCALL utee_tzvfs_sleep, TEE_SCN_TZVFS_SLEEP, 2
+
+        UTEE_SYSCALL utee_tzvfs_gettimeofday, TEE_SCN_TZVFS_GETTIMEOFDAY, 3
+
+        UTEE_SYSCALL utee_tzvfs_fchown, TEE_SCN_TZVFS_FCHOWN, 4
+
+        UTEE_SYSCALL utee_sqlite_exec_v2, TEE_SCN_SQLITE_EXEC_V2, 4
