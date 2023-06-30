@@ -150,6 +150,7 @@ static const struct syscall_entry tee_syscall_table[] = {
 	SYSCALL_ENTRY(syscall_tzvfs_gettimeofday),
 	SYSCALL_ENTRY(syscall_tzvfs_fchown),
 	SYSCALL_ENTRY(syscall_sqlite_exec_v2),
+	SYSCALL_ENTRY(syscall_sqlite_insert),
 };
 
 /*

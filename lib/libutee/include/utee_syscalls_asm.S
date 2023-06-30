@@ -178,3 +178,5 @@
         UTEE_SYSCALL utee_tzvfs_fchown, TEE_SCN_TZVFS_FCHOWN, 4
 
         UTEE_SYSCALL utee_sqlite_exec_v2, TEE_SCN_SQLITE_EXEC_V2, 4
+
+        UTEE_SYSCALL utee_sqlite_insert, TEE_SCN_SQLITE_INSERT, 2

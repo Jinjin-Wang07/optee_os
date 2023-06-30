@@ -136,9 +136,11 @@
 
 // #define TEE_SCN_MAX                     97
 
-#define TEE_SCN_SQLITE_EXEC_V2             98
+#define TEE_SCN_SQLITE_EXEC_V2          98
 
-#define TEE_SCN_MAX                     98
+#define TEE_SCN_SQLITE_INSERT           99
+
+#define TEE_SCN_MAX                     99
 
 /* Maximum number of allowed arguments for a syscall */
 #define TEE_SVC_MAX_ARGS			8

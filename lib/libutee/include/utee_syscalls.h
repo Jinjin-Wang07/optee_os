@@ -233,6 +233,8 @@ TEE_Result utee_sqlite_exec(const void *sql, size_t sql_size, void *res, size_t 
 /* Second version of optee-os api*/
 TEE_Result utee_sqlite_exec_v2(const void *sql, size_t sql_size, void *res, size_t res_size);
 
+TEE_Result utee_sqlite_insert(const void *shared_buffer, size_t size);
+
 int utee_tzvfs_open(int *tzvfs_errno, const char *filename, int flags, mode_t mode);
 
 int utee_tzvfs_close(int *tzvfs_errno, int fd);
