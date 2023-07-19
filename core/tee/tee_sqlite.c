@@ -80,8 +80,8 @@ exit1:
 
 TEE_Result syscall_sqlite_exec_v2(const void *sql, size_t sql_size, void *res, size_t res_size)
 {
-    // DMSG("===================================================================\n");
-    // DMSG("In syscall_sqlite_exec_v2() function\n");
+    DMSG("===================================================================\n");
+    DMSG("In syscall_sqlite_exec_v2() function\n");
    
     uint8_t *sql_ree_shm = NULL;
     uint8_t *res_ree_shm = NULL;
@@ -105,7 +105,7 @@ TEE_Result syscall_sqlite_exec_v2(const void *sql, size_t sql_size, void *res, s
     // 检查虚拟地址是否有效
     assert(sql_ree_shm);
     memcpy(sql_ree_shm, sql, sql_size);
-    params[0].u.memref.mobj = sql_mobj;
+    params[0].u.memref.mobj = sql_mobj; 
     params[0].u.memref.size = sql_size;
     params[0].u.memref.offs = 0;
 
@@ -129,11 +129,11 @@ TEE_Result syscall_sqlite_exec_v2(const void *sql, size_t sql_size, void *res, s
     params[1].u.memref.offs = 0; 
 
 
-    // DMSG( "==========================================");
-    // DMSG("Before call sqlite cmd");
-    result = thread_rpc_cmd(OPTEE_MSG_RPC_CMD_SQLITE, 2, params);
-    // DMSG("Result = %s",  result == TEE_SUCCESS ? "SUCCESS" : "FAILED");
-    // DMSG( "==========================================");
+    DMSG( "==========================================");
+    DMSG("Before call sqlite cmd");
+    result = thread_rpc_cmd(OPTEE_MSG_RPC_CMD_SQLITE_NEW, 2, params);
+    DMSG("Result = %s",  result == TEE_SUCCESS ? "SUCCESS" : "FAILED");
+    DMSG( "==========================================");
     if (result != TEE_SUCCESS)
 		goto exit2;
     
@@ -144,8 +144,7 @@ TEE_Result syscall_sqlite_exec_v2(const void *sql, size_t sql_size, void *res, s
     // DMSG("In tee_sqlite, params[1].u.memref.size == %ld\n", params[1].u.memref.size);
     
     memcpy(res, res_ree_shm, params[1].u.memref.size);
-
-    //  DMSG("===================================================================\n");
+    DMSG("===================================================================\n");
 exit2:
 	thread_rpc_free_payload(res_mobj);
 exit1:

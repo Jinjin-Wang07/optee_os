@@ -26,7 +26,8 @@
  * Sqlite3
  */
 #define OPTEE_MSG_RPC_CMD_SQLITE    20
-#define OPTEE_MSG_RPC_CMD_SQLITEV  21
+
+#define OPTEE_MSG_RPC_CMD_SQLITE_NEW  U(22)
 
 /*
  * TZVFS
