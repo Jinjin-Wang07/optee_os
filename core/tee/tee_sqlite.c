@@ -59,11 +59,6 @@ TEE_Result syscall_sqlite_exec(const void *sql, size_t sql_size, void *res, size
     if (result != TEE_SUCCESS)
 		goto exit2;
     
-    //tee_shm = malloc(params[1].u.memref.size);
-    //memcpy(tee_shm, res_ree_shm, params[1].u.memref.size);
-    //tee_svc_copy_to_user(res, tee_shm, params[1].u.memref.size);
-    //free(tee_shm);
-    
     memcpy(res, res_ree_shm, params[1].u.memref.size);
 exit2:
 	thread_rpc_free_payload(res_mobj);
@@ -80,8 +75,8 @@ exit1:
 
 TEE_Result syscall_sqlite_exec_v2(const void *sql, size_t sql_size, void *res, size_t res_size)
 {
-    DMSG("===================================================================\n");
-    DMSG("In syscall_sqlite_exec_v2() function\n");
+    // DMSG("===================================================================\n");
+    // DMSG("In syscall_sqlite_exec_v2() function\n");
    
     uint8_t *sql_ree_shm = NULL;
     uint8_t *res_ree_shm = NULL;
@@ -129,22 +124,17 @@ TEE_Result syscall_sqlite_exec_v2(const void *sql, size_t sql_size, void *res, s
     params[1].u.memref.offs = 0; 
 
 
-    DMSG( "==========================================");
-    DMSG("Before call sqlite cmd");
+    // DMSG( "==========================================");
+    // DMSG("Before call sqlite cmd");
     result = thread_rpc_cmd(OPTEE_MSG_RPC_CMD_SQLITE_NEW, 2, params);
-    DMSG("Result = %s",  result == TEE_SUCCESS ? "SUCCESS" : "FAILED");
-    DMSG( "==========================================");
-    if (result != TEE_SUCCESS)
-		goto exit2;
-    
-    //tee_shm = malloc(params[1].u.memref.size);
-    //memcpy(tee_shm, res_ree_shm, params[1].u.memref.size);
-    //tee_svc_copy_to_user(res, tee_shm, params[1].u.memref.size);
-    //free(tee_shm);
-    // DMSG("In tee_sqlite, params[1].u.memref.size == %ld\n", params[1].u.memref.size);
-    
+    // DMSG("Result = %s",  result == TEE_SUCCESS ? "SUCCESS" : "FAILED");
+    // DMSG( "==========================================");
+    if (result != TEE_SUCCESS){
+		EMSG("RPC cmd call failed\n");
+        goto exit2;
+    }
     memcpy(res, res_ree_shm, params[1].u.memref.size);
-    DMSG("===================================================================\n");
+    // DMSG("===================================================================\n");
 exit2:
 	thread_rpc_free_payload(res_mobj);
 exit1:
