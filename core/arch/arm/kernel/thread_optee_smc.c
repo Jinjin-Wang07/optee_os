@@ -658,19 +658,27 @@ err:
  */
 static struct mobj *thread_rpc_alloc(size_t size, size_t align, unsigned int bt)
 {
+    // Define an array for RPC arguments with OPTEE_SMC_RETURN_RPC_CMD as the first element
 	uint32_t rpc_args[THREAD_RPC_NUM_ARGS] = { OPTEE_SMC_RETURN_RPC_CMD };
+
 	void *arg = NULL;
 	uint64_t carg = 0;
+
+	// Create a thread parameter with the specified size, alignment, and buffer type
 	struct thread_param param = THREAD_PARAM_VALUE(IN, bt, size, align);
+	// Get RPC arguments for the SHM allocation operation
 	uint32_t ret = get_rpc_arg(OPTEE_RPC_CMD_SHM_ALLOC, 1, &param,
 				   &arg, &carg);
 
 	if (ret)
 		return NULL;
-
+	// Extract a 64-bit value from carg and set it as the second and third elements
+    // of the rpc_args array
 	reg_pair_from_64(carg, rpc_args + 1, rpc_args + 2);
-	thread_rpc(rpc_args);
 
+	// Perform an RPC call with the rpc_args array
+	thread_rpc(rpc_args);
+	// Return the result of the SHM allocation operation
 	return get_rpc_alloc_res(arg, bt, size);
 }
 
